@@ -6,3 +6,24 @@
 .app > div {
   margin-right: 50px;
 }
+
+.task-done{
+    opacity: 0.75;
+    text-decoration: line-through;
+}
+
+.task-active{
+    font-weight: bold;
+}
+
+.btn-filter-active{
+    background-color: #22ac18;
+    color: white;
+    border: 2px solid #22ac18;
+    border-radius: 3px;
+}
+
+.error{
+    border: 1px solid red;
+    outline: none;
+}

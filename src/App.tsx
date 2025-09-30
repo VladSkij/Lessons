@@ -57,6 +57,14 @@ export const App=()=> {
         setTask(nextState);
     }
 
+    const updateTask = (taskId: TaskType["id"], newTaskStatus: TaskType["isDone"]) =>{
+        //1.Иммутабельно создаем новое состояние
+        const nextState: TaskType[] = tasks.map(t=>t.id === taskId ? {...t, isDone: newTaskStatus}:t);
+
+        //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
+        setTask(nextState);
+    }
+
 
 
     //UI:
@@ -82,7 +90,11 @@ export const App=()=> {
                 tasks = {getFiltredTasksForRender()}
                 createTask={createTask}
                 deleteTask={deleteTask}
-                changeTodolistFilter={changeTodolistFilter}/>
+                changeTodolistFilter={changeTodolistFilter}
+                updateTask = {updateTask}
+                filter={filter}
+            />
+
             {/*<TodolistItem title={todolistTitle_1} tasks = {task2}/>*/}
             {/*<TodolistItem title={todolistTitle_2} tasks = {task3}/>*/}
       </div>

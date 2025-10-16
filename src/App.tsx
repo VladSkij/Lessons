@@ -2,6 +2,7 @@ import './App.css'
 import TodolistItem from "./TodolistItem.tsx";
 import {useState} from "react";
 import {v1} from "uuid";
+import {CreateItemForm} from "./CreateItemForm.tsx";
 
 export type ToDoListType = {
     todolistId: string;
@@ -49,6 +50,42 @@ export const App = () => {
 
 
     //Logic
+    //To do lists CRUD
+    const createToDoList = (title:ToDoListType['title'])=>{
+        //1.Иммутабельно создаем новое состояние
+       const newToDoListId = v1();
+        const newToDoList: ToDoListType ={
+            todolistId:newToDoListId,
+            title:title,
+            filter:"all"
+        }
+        const nextState:ToDoListType[] = [...toDoLists, newToDoList];
+        setToDoLists(nextState)
+        setTask({...tasks, [newToDoListId]:[]});
+    }
+    const changeTodolistFilter = (newFilterValue: FilterValuesType, toDoListId: ToDoListType['todolistId']) => {
+        //1.Иммутабельно создаем новое состояние
+        const nextState: ToDoListType[] = toDoLists.map(tl => tl.todolistId === toDoListId ? {...tl, filter: newFilterValue} : tl);
+        //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
+        setToDoLists(nextState)
+    }
+    const delateToDoList = (toDoListId: ToDoListType['todolistId']) => {
+        //1.Иммутабельно создаем новое состояние
+        const nextState: ToDoListType[] = toDoLists.filter(tl => tl.todolistId !== toDoListId);
+        //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
+        setToDoLists(nextState)
+        const copyTasksState = {...tasks};
+        delete copyTasksState[toDoListId];
+        setTask(copyTasksState);
+    }
+    const changeToDoListTitle = (newToDoListTitle: ToDoListType['title'], toDoListId: ToDoListType['todolistId']) =>{
+        //1.Иммутабельно создаем новое состояние
+        const nextState: ToDoListType[] = toDoLists.map(tl => tl.todolistId === toDoListId ? {...tl, title: newToDoListTitle} : tl);
+        //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
+        setToDoLists(nextState)
+    }
+
+    //Tasks CRUD
     const deleteTask = (taskId: TaskType["id"], toDoListId: ToDoListType['todolistId']) => {
         //1.Иммутабельно создаем новое состояние
         // const taskToDelate = (tasks[toDoListId])
@@ -64,7 +101,6 @@ export const App = () => {
         //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
         setTask(nextState);
     }
-
     const createTask = (title: TaskType["title"], toDoListId: ToDoListType['todolistId']) => {
         //1.Иммутабельно создаем новое состояние
         //create new task
@@ -80,33 +116,23 @@ export const App = () => {
         //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
         setTask(nextState);
     }
-
     const updateTask = (taskId: TaskType["id"], newTaskStatus: TaskType["isDone"], toDoListId: ToDoListType['todolistId']) => {
         //1.Иммутабельно создаем новое состояние
         const nextState: TasksStateType = {
             ...tasks,
             [toDoListId]: tasks[toDoListId].map(t => t.id === taskId ? {...t, isDone: newTaskStatus} : t)
         }
-
         //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
         setTask(nextState);
     }
-
-    const changeTodolistFilter = (newFilterValue: FilterValuesType, toDoListId: ToDoListType['todolistId']) => {
+    const changeTaskTitle = (taskId: TaskType["id"], newTaskTitle: TaskType["title"], toDoListId: ToDoListType['todolistId'])=>{
         //1.Иммутабельно создаем новое состояние
-        const nextState: ToDoListType[] = toDoLists.map(tl => tl.todolistId === toDoListId ? {...tl, filter: newFilterValue} : tl);
+        const nextState: TasksStateType = {
+            ...tasks,
+            [toDoListId]: tasks[toDoListId].map(t => t.id === taskId ? {...t, title: newTaskTitle} : t)
+        }
         //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
-        setToDoLists(nextState)
-    }
-
-    const delateToDoList = (toDoListId: ToDoListType['todolistId']) => {
-        //1.Иммутабельно создаем новое состояние
-        const nextState: ToDoListType[] = toDoLists.filter(tl => tl.todolistId !== toDoListId);
-        //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
-        setToDoLists(nextState)
-        const copyTasksState = {...tasks};
-        delete copyTasksState[toDoListId];
-        setTask(copyTasksState);
+        setTask(nextState);
     }
 
     //UI
@@ -129,7 +155,9 @@ export const App = () => {
                 title={tl.title}
                 tasks={getFiltredTasksForRender(tasks[tl.todolistId], tl.filter)}
                 filter={tl.filter}
+                changeTaskTitle={changeTaskTitle}
 
+                changeToDoListTitle = {changeToDoListTitle}
                 createTask={createTask}
                 deleteTask={deleteTask}
                 changeTodolistFilter={changeTodolistFilter}
@@ -141,6 +169,7 @@ export const App = () => {
 
     return (
         <div className="app">
+            <CreateItemForm createItem={createToDoList} maxTitleLength={10} minTitleLength={15} />
             {toDoListsComponents}
         </div>
     )

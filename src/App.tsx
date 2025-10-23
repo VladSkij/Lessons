@@ -3,6 +3,19 @@ import TodolistItem from "./TodolistItem.tsx";
 import {useState} from "react";
 import {v1} from "uuid";
 import {CreateItemForm} from "./CreateItemForm.tsx";
+import AppBar from '@mui/material/AppBar'
+import Toolbar from '@mui/material/Toolbar'
+// import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import MenuIcon from '@mui/icons-material/Menu'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
+import {containerSx} from "./ToDoListItem.styles.ts";
+import Box from '@mui/material/Box'
+import {NavButton} from "./NavBtn.ts";
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Switch from '@mui/material/Switch';
 
 export type ToDoListType = {
     todolistId: string;
@@ -149,28 +162,67 @@ export const App = () => {
 
     const toDoListsComponents = toDoLists.map(tl => {
         return (
-            <TodolistItem
-                key={tl.todolistId}
-                todolistId={tl.todolistId}
-                title={tl.title}
-                tasks={getFiltredTasksForRender(tasks[tl.todolistId], tl.filter)}
-                filter={tl.filter}
-                changeTaskTitle={changeTaskTitle}
+            <Grid key={tl.todolistId}>
+                <Paper elevation={3} sx={{padding: '10px'}}>
+                    <TodolistItem
+                        todolistId={tl.todolistId}
+                        title={tl.title}
+                        tasks={getFiltredTasksForRender(tasks[tl.todolistId], tl.filter)}
+                        filter={tl.filter}
+                        changeTaskTitle={changeTaskTitle}
 
-                changeToDoListTitle = {changeToDoListTitle}
-                createTask={createTask}
-                deleteTask={deleteTask}
-                changeTodolistFilter={changeTodolistFilter}
-                updateTask={updateTask}
-                delateToDoList={delateToDoList}
-            />
+                        changeToDoListTitle = {changeToDoListTitle}
+                        createTask={createTask}
+                        deleteTask={deleteTask}
+                        changeTodolistFilter={changeTodolistFilter}
+                        updateTask={updateTask}
+                        delateToDoList={delateToDoList}
+                    />
+                </Paper>
+            </Grid>
         )
+    })
+
+    const [isDarkmode, setDarkMode] =useState(false);
+
+    const theme = createTheme({
+        palette: {
+            primary: {
+                main: '#b3e5fc',
+            },
+            secondary: {
+                main: '#80d8ff',
+            },
+            mode: isDarkmode ? 'dark' : 'light'
+        }
     })
 
     return (
         <div className="app">
-            <CreateItemForm createItem={createToDoList} maxTitleLength={10} minTitleLength={15} />
-            {toDoListsComponents}
+            <ThemeProvider theme={theme}>
+            <AppBar position="static">
+                <Toolbar sx={containerSx}>
+                    <IconButton color="inherit">
+                        <MenuIcon />
+                    </IconButton>
+                    <Box>
+                        <Switch onChange={()=>setDarkMode(!isDarkmode)}></Switch>
+                        <NavButton color="primary">Sign in</NavButton>
+                        <NavButton color="inherit">Sign out</NavButton>
+                        <NavButton color="inherit" background={theme.palette.primary.light}>FAQ</NavButton>
+                        <NavButton color="inherit">Home</NavButton>
+                    </Box>
+                </Toolbar>
+            </AppBar>
+            <Container maxWidth="lg">
+                <Grid container sx={{paddingTop: '10px'}}>
+                    <CreateItemForm createItem={createToDoList} maxTitleLength={10} minTitleLength={3} />
+                </Grid>
+                <Grid container spacing={1}>
+                    {toDoListsComponents}
+                </Grid>
+            </Container>
+            </ThemeProvider>
         </div>
     )
 }

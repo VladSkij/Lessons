@@ -1,5 +1,7 @@
-import {Button} from "./Button.tsx";
 import {ChangeEvent, KeyboardEvent, useState} from "react";
+import IconButton from '@mui/material/IconButton'
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import TextField from '@mui/material/TextField';
 
 type PropsType = {
     // createItemHandle:(newItemTitle:string)=>void,
@@ -34,21 +36,27 @@ export const CreateItemForm = ({createItem, maxTitleLength, minTitleLength}:Prop
 
     return (
         <div>
-            <input
+            <TextField
+                variant="filled"
+                size="small"
                 autoFocus={true}
                 value={itemTitle}
                 onChange={changeItemTitleHandler}
                 onKeyDown={onKeyDownCreateItemHandler}
-                className={error ? "error" : ""}
+                // className={error ? "error" : ""}
+                error={error}
+                helperText={error && "Title is requared!"}
             />
-            <Button title="+"
-                    onClickFunction={createItemHandler}
-                    disabled={itemTitle.length < minTitleLength || itemTitle.length > maxTitleLength}
-            />
+            <IconButton
+            onClick={createItemHandler}
+            disabled={itemTitle.length < minTitleLength || itemTitle.length > maxTitleLength}
+            >
+            <AddBoxIcon fontSize="large" />
+            </IconButton>
             {!error && itemTitle.length < minTitleLength && <div>title must be more then {minTitleLength} chartes</div>}
             {!error && itemTitle.length >= minTitleLength && itemTitle.length < maxTitleLength && <div>title must be less then 10 chartes</div>}
             {itemTitle.length >= maxTitleLength && <div style={{color: "red"}}>Max title length is {maxTitleLength} chartes</div>}
-            {error && <div style={{color: "red"}}>Title is requared</div>}
+            {error && <div style={{color: "red"}}>Title is requared!</div>}
         </div>
     );
 };

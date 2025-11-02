@@ -165,7 +165,7 @@ export const App = () => {
         setTask(nextState);
     }
 
-    //UI
+    //UI_____
     const getFiltredTasksForRender = (tasks: TaskType[], filter: FilterValuesType) => {
         let tasksForRender = tasks
         if (filter === "active") {

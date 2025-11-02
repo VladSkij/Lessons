@@ -1,6 +1,6 @@
 import './App.css'
 import TodolistItem from "./TodolistItem.tsx";
-import {useState} from "react";
+import {useReducer, useState} from "react";
 import {v1} from "uuid";
 import {CreateItemForm} from "./CreateItemForm.tsx";
 import AppBar from '@mui/material/AppBar'
@@ -16,6 +16,12 @@ import Box from '@mui/material/Box'
 import {NavButton} from "./NavBtn.ts";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Switch from '@mui/material/Switch';
+import {
+    changeTodolistFilterAC,
+    changeTodolistTitleAC,
+    createTodolistAC, deleteTodolistAC,
+    todolistsReducer
+} from "./model/todolists-reducer.ts";
 
 export type ToDoListType = {
     todolistId: string;
@@ -39,26 +45,28 @@ export const App = () => {
     //BLL:
 
     // State:
-    const toDoListId_1 = v1();
-    const toDoListId_2 = v1();
+    // const toDoListId_1 = v1();
+    // const toDoListId_2 = v1();
 
-    const [toDoLists, setToDoLists] = useState<ToDoListType[]>([
-        {todolistId: toDoListId_1, title: "What to learn", filter: "all"},
-        {todolistId: toDoListId_2, title: "What to do", filter: "all"}
-    ]);
+    // const [toDoLists, setToDoLists] = useState<ToDoListType[]>([
+    //     {todolistId: toDoListId_1, title: "What to learn", filter: "all"},
+    //     {todolistId: toDoListId_2, title: "What to do", filter: "all"}
+    // ]);
+
+    const [toDoLists, dispatchToTodolists] = useReducer(todolistsReducer, [])
 
     const [tasks, setTask] = useState<TasksStateType>({
-        [toDoListId_1]: [
-            {id: v1(), title: "HTML&CSS", isDone: true},
-            {id: v1(), title: "JS", isDone: true},
-            {id: v1(), title: "RactJS", isDone: false},
-            {id: v1(), title: "Redux", isDone: true},],
-        [toDoListId_2]: [
-            {id: v1(), title: "Bread", isDone: true},
-            {id: v1(), title: "Meat", isDone: true},
-            {id: v1(), title: "Sausages", isDone: false},
-            {id: v1(), title: "Beer", isDone: true},
-        ],
+        // [toDoListId_1]: [
+        //     {id: v1(), title: "HTML&CSS", isDone: true},
+        //     {id: v1(), title: "JS", isDone: true},
+        //     {id: v1(), title: "RactJS", isDone: false},
+        //     {id: v1(), title: "Redux", isDone: true},],
+        // [toDoListId_2]: [
+        //     {id: v1(), title: "Bread", isDone: true},
+        //     {id: v1(), title: "Meat", isDone: true},
+        //     {id: v1(), title: "Sausages", isDone: false},
+        //     {id: v1(), title: "Beer", isDone: true},
+        // ],
     })
 
 
@@ -66,36 +74,45 @@ export const App = () => {
     //To do lists CRUD
     const createToDoList = (title:ToDoListType['title'])=>{
         //1.Иммутабельно создаем новое состояние
-       const newToDoListId = v1();
-        const newToDoList: ToDoListType ={
-            todolistId:newToDoListId,
-            title:title,
-            filter:"all"
-        }
-        const nextState:ToDoListType[] = [...toDoLists, newToDoList];
-        setToDoLists(nextState)
-        setTask({...tasks, [newToDoListId]:[]});
+       // const newToDoListId = v1();
+       //  const newToDoList: ToDoListType ={
+       //      todolistId:newToDoListId,
+       //      title:title,
+       //      filter:"all"
+       //  }
+       //  const nextState:ToDoListType[] = [...toDoLists, newToDoList];
+       //  setToDoLists(nextState)
+       //  setTask({...tasks, [newToDoListId]:[]});
+
+        const action = createTodolistAC(title)
+        dispatchToTodolists(action)
+        setTask({...tasks, [action.payload.id]:[]})
     }
     const changeTodolistFilter = (newFilterValue: FilterValuesType, toDoListId: ToDoListType['todolistId']) => {
-        //1.Иммутабельно создаем новое состояние
-        const nextState: ToDoListType[] = toDoLists.map(tl => tl.todolistId === toDoListId ? {...tl, filter: newFilterValue} : tl);
-        //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
-        setToDoLists(nextState)
+        // //1.Иммутабельно создаем новое состояние
+        // const nextState: ToDoListType[] = toDoLists.map(tl => tl.todolistId === toDoListId ? {...tl, filter: newFilterValue} : tl);
+        // //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
+        // setToDoLists(nextState)
+
+        dispatchToTodolists(changeTodolistFilterAC({id:toDoListId, filter:newFilterValue}))
     }
     const delateToDoList = (toDoListId: ToDoListType['todolistId']) => {
-        //1.Иммутабельно создаем новое состояние
-        const nextState: ToDoListType[] = toDoLists.filter(tl => tl.todolistId !== toDoListId);
-        //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
-        setToDoLists(nextState)
-        const copyTasksState = {...tasks};
-        delete copyTasksState[toDoListId];
-        setTask(copyTasksState);
+        // //1.Иммутабельно создаем новое состояние
+        // const nextState: ToDoListType[] = toDoLists.filter(tl => tl.todolistId !== toDoListId);
+        // //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
+        // setToDoLists(nextState)
+        // const copyTasksState = {...tasks};
+        // delete copyTasksState[toDoListId];
+        // setTask(copyTasksState);
+        dispatchToTodolists(deleteTodolistAC(toDoListId))
     }
     const changeToDoListTitle = (newToDoListTitle: ToDoListType['title'], toDoListId: ToDoListType['todolistId']) =>{
-        //1.Иммутабельно создаем новое состояние
-        const nextState: ToDoListType[] = toDoLists.map(tl => tl.todolistId === toDoListId ? {...tl, title: newToDoListTitle} : tl);
-        //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
-        setToDoLists(nextState)
+                // //1.Иммутабельно создаем новое состояние
+                // const nextState: ToDoListType[] = toDoLists.map(tl => tl.todolistId === toDoListId ? {...tl, title: newToDoListTitle} : tl);
+                // //2.Передаем новое состояние которое реакт сравнивает для обновления его визуализации
+                // setToDoLists(nextState)
+
+        dispatchToTodolists(changeTodolistTitleAC({id:toDoListId, title:newToDoListTitle}))
     }
 
     //Tasks CRUD
